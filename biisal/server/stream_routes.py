@@ -3,7 +3,6 @@
 # Thanks to adarsh-goel
 # (c) @biisal
 # (c) TechifyBots
-
 import re
 import time
 import math
@@ -19,6 +18,7 @@ from ..utils.time_format import get_readable_time
 from ..utils.custom_dl import ByteStreamer
 from biisal.utils.render_template import render_page
 from biisal.vars import Var
+
 
 routes = web.RouteTableDef()
 
@@ -39,6 +39,7 @@ async def root_route_handler(_):
             "version": __version__,
         }
     )
+
 
 @routes.get(r"/watch/{path:\S+}", allow_head=True)
 async def stream_handler(request: web.Request):
@@ -88,10 +89,10 @@ class_cache = {}
 
 async def media_streamer(request: web.Request, id: int, secure_hash: str):
     range_header = request.headers.get("Range", 0)
-
+    
     index = min(work_loads, key=work_loads.get)
     faster_client = multi_clients[index]
-
+    
     if Var.MULTI_CLIENT:
         logging.info(f"Client {index} is now serving {request.remote}")
 
@@ -105,11 +106,11 @@ async def media_streamer(request: web.Request, id: int, secure_hash: str):
     logging.debug("before calling get_file_properties")
     file_id = await tg_connect.get_file_properties(id)
     logging.debug("after calling get_file_properties")
-
+    
     if file_id.unique_id[:6] != secure_hash:
         logging.debug(f"Invalid hash for message with ID {id}")
         raise InvalidHash
-
+    
     file_size = file_id.file_size
 
     if range_header:
@@ -167,4 +168,4 @@ async def media_streamer(request: web.Request, id: int, secure_hash: str):
             "Content-Disposition": f'{disposition}; filename="{file_name}"',
             "Accept-Ranges": "bytes",
         },
-        )
+    )
